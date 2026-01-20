@@ -52,7 +52,7 @@ Default initialization to NOP (0x00000013)
 Supports LW and SW
 Byte indexing via addr[9:2] (word-aligned)
 
-# 7. Top-Level Core (rv32_core.v)
+# 7. Top-Level Core (rv32_core.v / rv32_single_cycle.v)
 A minimal single-cycle-like implementation with:
 Program counter
 Basic branch logic
