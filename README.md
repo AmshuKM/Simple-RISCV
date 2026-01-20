@@ -105,12 +105,9 @@ iverilog -o cpu \
   tb_single_cycle.v \
   rv32_single_cycle.v \
   alu.v control.v regfile.v imm_gen.v instr_mem.v data_mem.v
-
 vvp cpu
-
 gtkwave single_cycle.vcd
-
-
+```
 
 
 ### **2. 💾 Program Loading (program.hex)
@@ -123,12 +120,12 @@ $readmemh("program.hex", mem);
 The file must contain 1 byte per line in little-endian order.
 
 Example:
-
+``` bash
 93
 00
 00
 00    # addi x1, x0, 0
-
+```
 
 You can generate this from C or assembly using the RISC-V toolchain.
 
