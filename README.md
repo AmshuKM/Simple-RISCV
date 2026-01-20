@@ -16,7 +16,7 @@ This is designed as a beginner-friendly but structurally accurate CPU, suitable 
 
 Below is the block-level flow of the single-cycle RV32I core:
 
-![Block Diagram](A_flowchart-style_digital_illustration_depicts_a_R.png)
+![Block Diagram](RISCV FLOW.png)
 
 ---
 
@@ -110,7 +110,7 @@ gtkwave single_cycle.vcd
 ```
 
 
-### **2. 💾 Program Loading (program.hex)
+### **2. Program Loading (program.hex)**
 
 The CPU fetches instructions from instr_mem using:
 
