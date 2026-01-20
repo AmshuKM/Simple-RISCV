@@ -122,7 +122,19 @@ module rv32_single_cycle (
     // Branch Logic
     // BEQ-only (funct3 = 000)
     // -------------------------------
-    wire take_branch = Branch & (rd1 == rd2);
+    wire beq  = (funct3 == 3'b000);
+    wire bne  = (funct3 == 3'b001);
+    wire blt  = (funct3 == 3'b100);
+    wire bge  = (funct3 == 3'b101);
+
+    wire condition =
+      (beq & (rd1 == rd2)) |
+      (bne & (rd1 != rd2)) |
+      (blt & ($signed(rd1) < $signed(rd2))) |
+      (bge & ($signed(rd1) >= $signed(rd2)));
+
+    wire take_branch = Branch & condition;
+
 
     assign pc_next = (take_branch) ? pc + imm : pc + 4;
 
