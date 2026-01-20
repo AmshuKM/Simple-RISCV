@@ -16,7 +16,7 @@ This is designed as a beginner-friendly but structurally accurate CPU, suitable 
 
 Below is the block-level flow of the single-cycle RV32I core:
 
-![Block Diagram](RISCV FLOW.png)
+![Block Diagram](RISCV_arch.png)
 
 ---
 
