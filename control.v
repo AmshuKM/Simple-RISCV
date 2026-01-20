@@ -23,55 +23,73 @@ always @(*) begin
 
     case (opcode)
 
-        7'b0110011: begin // R-type
-            RegWrite = 1;
-            case ({funct7, funct3})
-                10'b0000000_000: ALUOp = 3'b000; // ADD
-                10'b0100000_000: ALUOp = 3'b001; // SUB
-                default:         ALUOp = 3'b000;
-            endcase
-        end
+    // -------- R-TYPE --------
+    7'b0110011: begin
+        RegWrite = 1;
+        ALUSrc   = 0;
 
-        7'b0010011: begin // ADDI
-            RegWrite = 1;
-            ALUSrc   = 1;
-            ALUOp    = 3'b000;
-        end
+        case (funct3)
+            3'b000: ALUOp = (funct7 == 7'b0100000) ? 3'b001 : 3'b000; // SUB : ADD
+            3'b100: ALUOp = 3'b100;  // XOR
+            3'b110: ALUOp = 3'b011;  // OR
+            3'b111: ALUOp = 3'b010;  // AND
+            3'b010: ALUOp = 3'b101;  // SLT (for BLT/BGE too)
+            default: ALUOp = 3'b000;
+        endcase
+    end
 
-        7'b0000011: begin // LW
-            RegWrite = 1;
-            ALUSrc   = 1;
-            MemRead  = 1;
-            MemToReg = 1;
-            ALUOp    = 3'b000;
-        end
+    // -------- I-TYPE (ADDI, XORI, ORI, ANDI) --------
+    7'b0010011: begin
+        RegWrite = 1;
+        ALUSrc   = 1;
 
-        7'b0100011: begin // STORE (SB/SH/SW)
-            ALUSrc   = 1;
-            MemWrite = 1;
-            ALUOp    = 3'b000;
-        end
-        
-        7'b0110111: begin // LUI
-    		RegWrite = 1;
-    		ALUSrc   = 1;
-    		ALUOp    = 3'b000; // ADD
-	end
-	
-	7'b1100011: begin // BEQ
-  	  Branch = 1;
-  	  ALUSrc = 0;
-  	  ALUOp  = 3'b001; // SUB (for comparison)
-	end
-	
-	7'b1100011: begin // Branch instructions
-    Branch = 1;
-    ALUSrc = 0;
-    ALUOp  = 3'b001; // SUB (comparison)
-	end
+        case (funct3)
+            3'b000: ALUOp = 3'b000; // ADDI
+            3'b100: ALUOp = 3'b100; // XORI
+            3'b110: ALUOp = 3'b011; // ORI
+            3'b111: ALUOp = 3'b010; // ANDI
+            default: ALUOp = 3'b000;
+        endcase
+    end
 
+    // -------- LW --------
+    7'b0000011: begin
+        RegWrite = 1;
+        ALUSrc   = 1;
+        MemRead  = 1;
+        MemToReg = 1;
+        ALUOp    = 3'b000;
+    end
 
-    endcase
+    // -------- SW --------
+    7'b0100011: begin
+        ALUSrc   = 1;
+        MemWrite = 1;
+        ALUOp    = 3'b000;
+    end
+
+    // -------- LUI --------
+    7'b0110111: begin
+        RegWrite = 1;
+        ALUSrc   = 1;
+        ALUOp    = 3'b000;
+    end
+
+    // -------- BRANCHES --------
+    7'b1100011: begin
+        Branch = 1;
+        ALUSrc = 0;
+
+        case (funct3)
+            3'b000: ALUOp = 3'b001; // BEQ = SUB
+            3'b001: ALUOp = 3'b001; // BNE = SUB
+            3'b100: ALUOp = 3'b101; // BLT = SLT
+            3'b101: ALUOp = 3'b101; // BGE = SLT
+            default: ALUOp = 3'b001;
+        endcase
+    end
+
+endcase
 end
 
 endmodule
