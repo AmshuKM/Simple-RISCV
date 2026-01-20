@@ -1,65 +1,107 @@
-## Simple-RISCV
-A simple RV32I RISC-V processor core implemented from scratch for learning and experimentation. Includes RTL design, testbenches, and simulation setup.
+# 🧠 Simple-RISCV — A Minimal RV32I RISC-V CPU (Single-Cycle)
 
+A clean and modular **RV32I RISC-V processor core** implemented entirely in Verilog for learning, experimentation, and CPU architecture exploration.  
+This project includes a fully working **single-cycle** CPU, complete with datapath components, control logic, instruction/data memories, and simulation testbenches.
 
-# RISC-V RV32I Processor Core
+This is designed as a beginner-friendly but structurally accurate CPU, suitable for:
+- Computer architecture learning  
+- RTL design practice  
+- FPGA experimentation (future work)  
+- Extending into a pipelined CPU  
+- Zero-Knowledge Proof (ZKP) hardware modeling  
 
-This repository contains a modular Verilog implementation of a simplified RV32I RISC-V processor.
-The design includes the fundamental building blocks of a single-cycle CPU architecture such as an ALU, control unit, register file, immediate generator, instruction memory, data memory, and a top-level core.
-The project is structured for learning, simulation, and future extensions (pipeline stages, forwarding, hazard detection, ZKP-friendly tracing, etc.).
+---
+
+## 📐 CPU Architecture Overview
+
+Below is the block-level flow of the single-cycle RV32I core:
+
+![Block Diagram](A_flowchart-style_digital_illustration_depicts_a_R.png)
+
+---
 
 ## 📂 Included Modules
-# 1. ALU (alu.v)
-Implements basic arithmetic operations:
-ADD
-SUB
-(Extendable for AND, OR, SLT, XOR, shifts)
 
-ALU operation selected via a 3-bit op code.
+### **1. ALU (`alu.v`)**
+Implements arithmetic & logic operations:
+- ADD, SUB  
+- AND, OR, XOR  
+- SLT (signed compare)  
+- Extendable to shifts & more RV32I ops  
+- `ALUOp` selects the operation
 
-# 2. Control Unit (control.v)
+---
+
+### **2. Control Unit (`control.v`)**
 Generates control signals based on:
-opcode
-funct3
-funct7
+- `opcode`, `funct3`, `funct7`
 
 Supports:
-R-type (ADD, SUB)
-I-type (ADDI)
-Load (LW)
-Store (SW)
-LUI
-Branch (BEQ, BNE)
+- **R-type:** ADD, SUB, AND, OR, XOR, SLT  
+- **I-type:** ADDI, ANDI, ORI, XORI  
+- **Load:** LW  
+- **Store:** SW  
+- **LUI**  
+- **Branches:** BEQ, BNE, BLT, BGE  
 
-# 3. Immediate Generator (imm_gen.v)
-Generates sign-extended immediate values for:
-I-type
-S-type
-B-type
-U-type
+Outputs:
+- `RegWrite`, `ALUSrc`, `MemRead`,  
+  `MemWrite`, `MemToReg`, `Branch`, `ALUOp`
 
-# 4. Register File (regfile.v)
-32 general-purpose registers
-Synchronous write, asynchronous read
-x0 hardwired to zero
+---
 
-# 5. Instruction Memory (instr_mem.v)
-Byte-addressable memory
-Loads program from program.hex
-Default initialization to NOP (0x00000013)
+### **3. Immediate Generator (`imm_gen.v`)**
+Decodes immediates for:
+- **I-type**  
+- **S-type**  
+- **B-type**  
+- **U-type**  
+Fully sign-extended per RV32I spec.
 
-# 6. Data Memory (data_mem.v)
-Supports LW and SW
-Byte indexing via addr[9:2] (word-aligned)
+---
 
-# 7. Top-Level Core (rv32_core.v / rv32_single_cycle.v)
-A minimal single-cycle-like implementation with:
-Program counter
-Basic branch logic
-Tracked architectural signals for ZKP workflows
-pc, pc_next
-rs1_val, rs2_val
-imm
-is_beq, is_bne
+### **4. Register File (`regfile.v`)**
+- 32 registers (x0–x31)  
+- Synchronous write  
+- Asynchronous read  
+- `x0` hardwired to zero  
 
-This top-level can be swapped with a full instruction decode + datapath module later.
+---
+
+### **5. Instruction Memory (`instr_mem.v`)**
+- Byte-addressable  
+- Loads program from `program.hex`  
+- Uninitialized bytes default to NOP (`0x00000013`)  
+
+---
+
+### **6. Data Memory (`data_mem.v`)**
+- Supports LW and SW  
+- Word-aligned addressing (`addr[9:2]`)  
+- Simple behavioral RAM  
+
+---
+
+### **7. Single-Cycle Core (`rv32_single_cycle.v`)**
+Implements:
+- Program Counter  
+- Instruction Fetch  
+- Register Read  
+- Immediate Decode  
+- ALU  
+- Memory Access  
+- Write-Back  
+- Branch decision logic  
+
+Fully compatible with your other RTL modules.
+
+---
+
+## ▶️ Simulation & Usage
+
+### **1. Compile with Icarus Verilog**
+```bash
+iverilog -o cpu \
+  tb_single_cycle.v \
+  rv32_single_cycle.v \
+  alu.v control.v regfile.v imm_gen.v instr_mem.v data_mem.v
